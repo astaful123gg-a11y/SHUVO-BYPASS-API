@@ -1,0 +1,2 @@
+Build: pip install --upgrade pip && pip install -r requirements.txt
+Start: uvicorn main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 620 --workers 1
