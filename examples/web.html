@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bypass API demo</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; }
+      input, button { font-size: 16px; padding: 10px; }
+      input { width: 100%; box-sizing: border-box; }
+      #out { margin-top: 16px; word-break: break-all; }
+    </style>
+  </head>
+  <body>
+    <h1>Bypass API</h1>
+    <input id="url" placeholder="https://vplink.in/Nywa" />
+    <button onclick="go()">Bypass</button>
+    <div id="out"></div>
+    <script>
+      const API_BASE = "https://your-app.onrender.com";
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      async function go() {
+        const url = document.getElementById("url").value.trim();
+        const out = document.getElementById("out");
+        out.textContent = "Bypassing... (1-3 min)";
+        try {
+          let r = await fetch(`${API_BASE}/api?bypass=${encodeURIComponent(url)}`);
+          let d = await r.json();
+          while (d.status === "running") {
+            out.textContent = `Still working... ${Math.round(d.took)}s`;
+            await sleep(5000);
+            d = await (await fetch(`${API_BASE}/job?id=${d.job_id}`)).json();
+          }
+          out.innerHTML = d.success
+            ? `<a href="${d.bypassed}" target="_blank" rel="noopener">${d.bypassed}</a>`
+            : `Failed: ${d.error}`;
+        } catch (e) {
+          out.textContent = "Request failed: " + e;
+        }
+      }
+
+    </script>
+  </body>
+</html>
